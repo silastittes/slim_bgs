@@ -45,7 +45,7 @@ rule raisd:
         bgs = "{bgs}"
     shell:
         """
-        ~/Downloads/raisd-master/RAiSD -t -R \
+        RAiSD -t -R \
           -n hsweep{params.i}bgs{params.bgs}sweep{params.sweep} \
           -I hsweep_{params.i}_bgs{params.bgs}sweep{params.sweep}.vcf
         awk -v iter={params.i} '{{print $0 "\t" iter}}' RAiSD_Report.hsweep{params.i}bgs{params.bgs}sweep{params.sweep} > RAiSD_Report.hsweep{params.i}bgs{params.bgs}sweep{params.sweep}T
