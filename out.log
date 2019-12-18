@@ -1,0 +1,13 @@
+
+VCFtools - UNKNOWN
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf hsweep_0_bgs0.2sweep0.vcf
+	--site-pi
+	--stdout
+
+After filtering, kept 50 out of 50 Individuals
+Outputting Per-Site Nucleotide Diversity Statistics...
+After filtering, kept 17763 out of a possible 17763 Sites
+Run Time = 0.00 seconds

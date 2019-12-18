@@ -1,0 +1,64 @@
+initialize() {
+  defineConstant("N", 1000); // pop size
+  defineConstant("n", 50); // sample size
+  defineConstant("L", 99999); // total chromosome length
+  defineConstant("L0", 300); // distance between genes
+  defineConstant("L1", 700); // gene length
+  initializeMutationRate(1e-5);
+  initializeRecombinationRate(1e-5, L-1);
+  initializeMutationType("m1", 0.5, "f", 0);
+  initializeMutationType("m2", 1.0, "f", 0.7); // selected mutation //
+  initializeMutationType("m3", 0.25, "g", -0.01, 1.0);
+  initializeGenomicElementType("g2", c(m1,m2, m3), c(1.0, 0.0, prop_bg));
+
+  initializeGenomicElement(g2, 0, L-1);
+
+  // for (start in seq(from=L0, to=L-(L0+L1), by=(L0+L1)))
+  //  initializeGenomicElement(g2, start, (start+L1)-1);
+
+  }
+
+1 {
+  //save this run identifier, used to save and restore
+  defineConstant("simID", getSeed());
+  sim.addSubpop("p1", N);
+  //sim.rescheduleScriptBlock(s1, 10*N, 10*N);
+}
+
+1000 late() {
+  // save the state of the simulation
+  sim.outputFull("/tmp/slim_" + simID + ".txt");
+  // introduce the sweep mutation
+  target = sample(p1.genomes, 1);
+  target.addNewDrawnMutation(m2, asInteger(L/2));
+}
+
+1000:10000 late() {
+  if(sweep == 1){
+    if (sim.countOfMutationsOfType(m2) == 0) {
+      fixed = (sum(sim.substitutions.mutationType == m2) == 1);
+      if (fixed) {
+        cat(simID + ": FIXED\n");
+        // if commented out -- allow sims to finish past fixation. 
+         sim.simulationFinished();
+         p1.outputVCFSample(n, filePath = paste0(c("hsweep_", iter, "_bgs", prop_bg, "sweep", sweep, ".vcf")));
+
+      } else {
+      cat(simID + ": LOST – RESTARTING\n");
+      // go back to generation 
+      sim.readFromPopulationFile("/tmp/slim_" + simID + ".txt");
+      // start a newly seeded run
+     setSeed(rdunif(1, 0, asInteger(2^62) - 1));
+      // re-introduce the sweep mutation
+      target = sample(p1.genomes, 1);
+      target.addNewDrawnMutation(m2, asInteger(L/2));
+      }
+    }
+  }
+}
+
+10000 late() {
+  cat("NEUTRAL!!");
+  p1.outputVCFSample(n, filePath = paste0(c("hsweep_", iter, "_bgs", prop_bg, "sweep", sweep, ".vcf")));
+}
+
