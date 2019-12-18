@@ -3,3 +3,4 @@ RAiSD_*
 raisd_bgs* 
 pi_bgs*
 *pi
+.snakemake
